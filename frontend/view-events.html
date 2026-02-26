@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <title>PWA | Events Management</title>
+    
+    <script>
+        (function() {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) window.location.href = "login.html";
+        })();
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .text-truncate-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .event-card {
+            transition: transform 0.2s;
+        }
+        .event-card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container-fluid p-0 d-flex">
+    <nav class="sidebar d-flex flex-column shadow">
+        <div class="sidebar-logo p-4 text-center">
+            <img src="icons/logo.jpg" alt="Logo" width="65" class="mb-2" style="border-radius: 6px;">
+            <h6 class="text-white m-0 ls-wide">MUST EVENT & CONFERENCE</h6>
+        </div>
+        
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> <span class="d-none d-md-inline">Dashboard</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="events.html"><i class="bi bi-plus-circle"></i> <span class="d-none d-md-inline">Add Event</span></a></li>
+            <li class="nav-item"><a class="nav-link active" href="view-events.html"><i class="bi bi-calendar-event"></i> <span class="d-none d-md-inline">Events</span></a></li>
+            <li class="nav-item" id="adminLink" style="display:none;"><a class="nav-link" href="users.html"><i class="bi bi-people"></i> <span class="d-none d-md-inline">Users</span></a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-gear"></i> <span class="d-none d-md-inline">Settings</span></a></li>
+        </ul>
+
+        <div class="logout-section border-top border-secondary">
+            <a class="nav-link p-3 text-white-50" href="javascript:void(0)" onclick="localStorage.clear(); window.location.href='login.html';">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <div class="flex-grow-1 d-flex flex-column">
+        <header class="top-header d-flex justify-content-between align-items-center px-4 shadow-sm">
+            <h5 class="m-0 text-white fw-light">Event Management</h5>
+            <div class="header-icons text-white">
+                <i class="bi bi-bell me-3"></i>
+                <i class="bi bi-person-circle"></i>
+            </div>
+        </header>
+
+        <main class="main-content p-4">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-0">Scheduled Events</h3>
+                        <p class="text-muted">Review and manage your conference schedules</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="loadEvents()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                    </button>
+                </div>
+
+                <div id="eventList" class="row g-3">
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Event</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="editEventForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Event Heading</label>
+                        <input type="text" class="form-control shadow-sm" id="editHeading" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea class="form-control shadow-sm" id="editDescription" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Presenter</label>
+                            <input type="text" class="form-control shadow-sm" id="editPresenter" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Date</label>
+                            <input type="date" class="form-control shadow-sm" id="editDate" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Location</label>
+                        <input type="text" class="form-control shadow-sm" id="editPlace" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="updateEvent()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentEditingEventId = null;
+const editModal = new bootstrap.Modal(document.getElementById('editEventModal'));
+
+async function loadEvents(){
+    const list = document.getElementById("eventList");
+    try {
+        const res = await fetch("../backend/get_events.php");
+        const events = await res.json();
+        list.innerHTML = "";
+
+        if(events.length === 0) {
+            list.innerHTML = `<div class="col-12 text-center text-muted p-5">No events found.</div>`;
+            return;
+        }
+
+        // Sort events by date
+        events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        events.forEach(e => {
+            const eventDate = new Date(e.date);
+            const isPast = eventDate < new Date().setHours(0,0,0,0);
+            
+            const card = document.createElement("div");
+            card.className = "col-12";
+            card.innerHTML = `
+                <div class="card border-0 shadow-sm mb-2 overflow-hidden event-card">
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <div class="col-auto bg-primary text-white p-3 d-flex flex-column align-items-center justify-content-center" style="min-width: 100px;">
+                                <h4 class="m-0 fw-bold">${eventDate.getDate()}</h4>
+                                <small class="text-uppercase">${eventDate.toLocaleString('default', { month: 'short' })}</small>
+                            </div>
+                            <div class="col p-3">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="text-primary fw-bold mb-1">${e.heading}</h5>
+                                    <span class="badge ${isPast ? 'bg-secondary' : 'bg-success-subtle text-success'} align-self-start">
+                                        ${isPast ? 'Completed' : 'Upcoming'}
+                                    </span>
+                                </div>
+                                
+                                <p class="text-muted small mb-2 text-truncate-3">
+                                    ${e.description ? e.description : 'No description provided for this session.'}
+                                </p>
+
+                                <div class="row text-muted small mt-2">
+                                    <div class="col-md-4"><i class="bi bi-person me-2"></i><strong>Presenter:</strong> ${e.presenter_name}</div>
+                                    <div class="col-md-4"><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> ${e.place}</div>
+                                    <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                                        <button class="btn btn-sm btn-outline-primary border-0 me-2" 
+                                            onclick="openEditModal(${e.id}, ${JSON.stringify(e.heading).replace(/"/g, '&quot;')}, ${JSON.stringify(e.presenter_name).replace(/"/g, '&quot;')}, '${e.date}', ${JSON.stringify(e.place).replace(/"/g, '&quot;')}, ${JSON.stringify(e.description || '').replace(/"/g, '&quot;')})">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteEvent(${e.id})"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    } catch(err) {
+        list.innerHTML = `<div class="alert alert-danger m-3">Error loading events. Please check your backend connection.</div>`;
+    }
+}
+
+function openEditModal(id, heading, presenter, date, place, description){
+    currentEditingEventId = id;
+    document.getElementById("editHeading").value = heading;
+    document.getElementById("editPresenter").value = presenter;
+    document.getElementById("editDate").value = date;
+    document.getElementById("editPlace").value = place;
+    document.getElementById("editDescription").value = description;
+    editModal.show();
+}
+
+async function deleteEvent(id) {
+    if (confirm("Are you sure you want to permanently delete this event? This action cannot be undone.")) {
+        try {
+            const res = await fetch(`../backend/delete_event.php?id=${id}`);
+            const data = await res.json();
+            if (data.status === "success") {
+                loadEvents();
+            } else {
+                alert(data.message);
+            }
+        } catch (err) {
+            alert("Connection error. Could not delete event.");
+        }
+    }
+}
+
+async function updateEvent(){
+    const updatedData = {
+        id: currentEditingEventId,
+        heading: document.getElementById("editHeading").value,
+        presenter_name: document.getElementById("editPresenter").value,
+        date: document.getElementById("editDate").value,
+        place: document.getElementById("editPlace").value,
+        description: document.getElementById("editDescription").value
+    };
+
+    try {
+        const res = await fetch("../backend/update_event.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedData)
+        });
+        const data = await res.json();
+        
+        if(data.status === "success") {
+            editModal.hide();
+            loadEvents();
+        } else {
+            alert("Update failed: " + data.message);
+        }
+    } catch (err) {
+        alert("Error connecting to server.");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Role-based Access Control
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.user_role === 'Admin') {
+        document.getElementById("adminLink").style.display = "block";
+    }
+    loadEvents();
+});
+</script>
+</body>
+</html>

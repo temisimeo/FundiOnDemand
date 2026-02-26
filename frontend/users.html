@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | MUST Event</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container-fluid p-0 d-flex">
+    <nav class="sidebar d-flex flex-column shadow">
+        <div class="sidebar-logo p-4 text-center">
+            <img src="icons/logo.jpg" alt="Logo" width="65" class="mb-2" style="border-radius: 6px;">
+            <h6 class="text-white m-0 ls-wide small">MUST EVENT & CONFERENCE</h6>
+        </div>
+        
+        <ul class="nav flex-column mb-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> <span class="d-none d-md-inline">Dashboard</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="events.html"><i class="bi bi-plus-circle"></i> <span class="d-none d-md-inline">Add Event</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="view-events.html"><i class="bi bi-calendar-event"></i> <span class="d-none d-md-inline">Events</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="users.html"><i class="bi bi-people"></i> <span class="d-none d-md-inline">Users</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#"><i class="bi bi-gear"></i> <span class="d-none d-md-inline">Settings</span></a>
+            </li>
+        </ul>
+
+        <div class="logout-section border-top border-secondary">
+            <a class="nav-link p-3 text-white-50" href="login.html">
+                <i class="bi bi-box-arrow-left text-danger"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <div class="flex-grow-1 d-flex flex-column">
+        <header class="top-header d-flex justify-content-between align-items-center px-4">
+            <h5 class="m-0 text-white fw-light">User Management</h5>
+            <div class="header-icons text-white d-flex align-items-center">
+                <i class="bi bi-bell me-3 cursor-pointer"></i>
+                <div class="vr me-3" style="height: 20px; opacity: 0.3;"></div>
+                <i class="bi bi-person-circle cursor-pointer fs-5"></i>
+            </div>
+        </header>
+
+        <main class="main-content p-4 d-flex flex-column">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 text-primary fw-bold"><i class="bi bi-table me-2"></i>Registered Users</h6>
+                    <button class="btn btn-sm btn-outline-primary" onclick="fetchUsers()">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh List
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-secondary small text-uppercase">
+                                <tr>
+                                    <th class="ps-4">S.N.</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        <span class="ms-2 text-muted">Loading users...</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <footer class="text-center mt-auto text-muted small pt-4">
+                © 2026 MUST Conference System
+            </footer>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-light">Edit User Account</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="editUserForm">
+                    <input type="hidden" id="edit_id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Username</label>
+                        <input type="text" id="edit_username" class="form-control bg-light" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Email Address</label>
+                        <input type="email" id="edit_email" class="form-control bg-light" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">Assign Role</label>
+                        <select id="edit_role_select" class="form-select bg-light">
+                            <option value="User">User</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Coordinator">Coordinator</option>
+                        </select>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary py-2 shadow-sm">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 1. FETCH USERS
+    async function fetchUsers() {
+        try {
+            const res = await fetch('../backend/get_users.php');
+            const data = await res.json();
+            const tableBody = document.getElementById('userTableBody');
+            tableBody.innerHTML = ''; 
+
+            if (data.error) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger p-4">Error: ${data.error}</td></tr>`;
+                return;
+            }
+
+            data.forEach((user, index) => {
+                const row = `
+                    <tr>
+                        <td class="ps-4 text-muted fw-bold">${index + 1}</td>
+                        <td class="fw-semibold text-dark">${user.username}</td>
+                        <td class="text-muted small">${user.email}</td>
+                        <td><span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2 rounded-pill">${user.user_role || 'User'}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-light border text-primary me-1" 
+                                onclick="openEditModal(${user.id}, '${user.username}', '${user.email}', '${user.user_role}')">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light border text-danger" onclick="deleteUser(${user.id})">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        } catch (error) {
+            document.getElementById('userTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger p-4">Connection to backend failed.</td></tr>';
+        }
+    }
+
+    // 2. OPEN EDIT MODAL & PRE-FILL PRESENT VALUES
+    function openEditModal(id, username, email, user_role) {
+        // Set values in the form fields
+        document.getElementById('edit_id').value = id;
+        document.getElementById('edit_username').value = username;
+        document.getElementById('edit_email').value = email;
+        
+        // This line pre-selects the present user_role in the dropdown
+        const roleSelect = document.getElementById('edit_role_select');
+        roleSelect.value = user_role || "User"; 
+        
+        // Show modal
+        const myModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+        myModal.show();
+    }
+
+    // 3. UPDATE SUBMISSION
+    document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const payload = {
+            id: document.getElementById('edit_id').value,
+            username: document.getElementById('edit_username').value,
+            email: document.getElementById('edit_email').value,
+            user_role: document.getElementById('edit_role_select').value
+        };
+
+        try {
+            const res = await fetch('../backend/update_user.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            
+            if (result.status === 'success') {
+                // Close modal using Bootstrap's instance method
+                const modalElement = document.getElementById('editUserModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                modalInstance.hide();
+                
+                fetchUsers(); // Refresh the table to show new values
+            } else {
+                alert("Error updating user: " + result.message);
+            }
+        } catch (error) {
+            alert("Network error. Could not reach update_user.php");
+        }
+    });
+
+    // 4. DELETE USER
+    async function deleteUser(id) {
+        if (confirm("Are you sure you want to permanently delete user #" + id + "?")) {
+            try {
+                const res = await fetch(`../backend/delete_user.php?id=${id}`);
+                const result = await res.json();
+                if (result.status === 'success') {
+                    fetchUsers(); 
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert("Request failed.");
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchUsers);
+</script>
+</body>
+</html>

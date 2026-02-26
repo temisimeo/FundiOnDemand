@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MUST Event</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <link rel="stylesheet" href="style.css?v=1.1"> </head>
+<body>
+
+<div class="login-container">
+    <div class="login-box">
+        <div class="text-center mb-4">
+            <img src="icons/logo.jpg" alt="Logo" width="80" style="border-radius: 10px;">
+            <h2 class="mt-2">MUST EVENT</h2>
+        </div>
+        
+        <input type="text" id="username" placeholder="Enter Username">
+        <input type="password" id="password" placeholder="Enter Password">
+        
+        <button id="loginBtn" class="btn-login" onclick="login()">
+            <span id="btnText">Login</span>
+        </button>
+        
+        <div class="divider"><span>OR</span></div>
+        
+        <a href="register.html" style="text-decoration: none;">
+            <button class="btn-register">Create Account</button>
+        </a>
+        <p class="footer-text">© 2026 MUST Conference System</p>
+    </div>
+</div>
+
+<script>
+// --- PWA AUTO-UPDATE LOGIC ---
+if ('serviceWorker' in navigator) {
+    let refreshing = false;
+
+    // Detect when the new Service Worker takes over and refresh the page
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            window.location.reload();
+            refreshing = true;
+        }
+    });
+
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+            .then(reg => {
+                console.log('PWA Service Worker Registered');
+                
+                // Check for updates every time the page is opened
+                reg.update(); 
+            })
+            .catch(err => console.error('PWA Service Worker failed', err));
+    });
+}
+
+// --- LOGIN LOGIC ---
+async function login(){
+    const usernameField = document.getElementById("username");
+    const passwordField = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const btnText = document.getElementById("btnText");
+
+    const username = usernameField.value.trim();
+    const password = passwordField.value.trim();
+
+    if(!username || !password) {
+        alert("Please fill in all fields");
+        return;
+    }
+
+    // Visual Feedback: Loading State
+    loginBtn.disabled = true;
+    btnText.innerText = "Authenticating...";
+
+    try {
+        const res = await fetch("../backend/login.php", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({username, password})
+        });
+
+        // Check if response is actual JSON
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new TypeError("Oops, we didn't get JSON from the server!");
+        }
+
+        const data = await res.json();
+        
+        if(res.ok){
+            localStorage.setItem("user", JSON.stringify(data.user));
+            window.location.href = "index.html";
+        } else {
+            alert(data.message || "Login failed");
+            // Reset button on failure
+            loginBtn.disabled = false;
+            btnText.innerText = "Login";
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Connection error. Check console for details.");
+        loginBtn.disabled = false;
+        btnText.innerText = "Login";
+    }
+}
+
+function logout() {
+    // 1. Clear LocalStorage
+    localStorage.removeItem("user");
+    
+    // 2. Call the PHP logout script to kill the server session
+    fetch('backend/logout.php').then(() => {
+        window.location.href = "login.html";
+    });
+}
+
+
+
+
+// Inside your login() function's try block:
+const result = JSON.parse(cleanJSON);
+
+if (result.status === 'success') {
+    // 1. Save user info to LocalStorage (Good for UI display)
+    localStorage.setItem("user", JSON.stringify(result.user));
+
+    // 2. Redirect to index
+    window.location.href = "index.html";
+} else {
+    showAlert(result.message);
+}
+</script>
+</body>
+</html>
