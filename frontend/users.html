@@ -11,56 +11,89 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* Mobile Sidebar Logic matched with Dashboard */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px; 
+                z-index: 1050;
+                height: 100vh;
+                transition: 0.3s;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+        }
+
+        .main-content {
+            min-height: calc(100vh - 65px);
+            background-color: #f8f9fa;
+        }
+
+        .cursor-pointer { cursor: pointer; }
+
+        /* Sidebar Active State Styling */
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #0d6efd;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container-fluid p-0 d-flex">
-    <nav class="sidebar d-flex flex-column shadow">
+    <nav class="sidebar d-flex flex-column shadow bg-dark text-white" id="sidebar" style="width: 250px; min-width: 250px;">
         <div class="sidebar-logo p-4 text-center">
             <img src="icons/logo.jpg" alt="Logo" width="65" class="mb-2" style="border-radius: 6px;">
             <h6 class="text-white m-0 ls-wide small">MUST EVENT & CONFERENCE</h6>
         </div>
         
-        <ul class="nav flex-column mb-auto">
+        <ul class="nav flex-column mb-auto px-2">
             <li class="nav-item">
-                <a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> <span class="d-none d-md-inline">Dashboard</span></a>
+                <a class="nav-link text-white-50 py-3" href="index.html"><i class="bi bi-house-door me-2"></i> <span>Dashboard</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="events.html"><i class="bi bi-plus-circle"></i> <span class="d-none d-md-inline">Add Event</span></a>
+                <a class="nav-link text-white-50 py-3" href="events.html"><i class="bi bi-plus-circle me-2"></i> <span>Add Event</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="view-events.html"><i class="bi bi-calendar-event"></i> <span class="d-none d-md-inline">Events</span></a>
+                <a class="nav-link text-white-50 py-3" href="view-events.html"><i class="bi bi-calendar-event me-2"></i> <span>Events</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="users.html"><i class="bi bi-people"></i> <span class="d-none d-md-inline">Users</span></a>
+                <a class="nav-link active text-white py-3" href="users.html"><i class="bi bi-people me-2"></i> <span>Users</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#"><i class="bi bi-gear"></i> <span class="d-none d-md-inline">Settings</span></a>
+                <a class="nav-link text-white-50 py-3" href="#"><i class="bi bi-gear me-2"></i> <span>Settings</span></a>
             </li>
         </ul>
 
         <div class="logout-section border-top border-secondary">
-            <a class="nav-link p-3 text-white-50" href="login.html">
-                <i class="bi bi-box-arrow-left text-danger"></i> Logout
+            <a class="nav-link p-3 text-white-50" href="javascript:void(0)" onclick="localStorage.clear(); window.location.href='login.html';">
+                <i class="bi bi-box-arrow-left me-2"></i> Logout
             </a>
         </div>
     </nav>
 
-    <div class="flex-grow-1 d-flex flex-column">
-        <header class="top-header d-flex justify-content-between align-items-center px-4">
-            <h5 class="m-0 text-white fw-light">User Management</h5>
+    <div class="flex-grow-1 d-flex flex-column" style="overflow-x: hidden;">
+        <header class="top-header d-flex justify-content-between align-items-center px-4 py-3 bg-primary shadow-sm">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-primary d-md-none me-2" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <h5 class="m-0 text-white fw-light">User Management</h5>
+            </div>
             <div class="header-icons text-white d-flex align-items-center">
                 <i class="bi bi-bell me-3 cursor-pointer"></i>
-                <div class="vr me-3" style="height: 20px; opacity: 0.3;"></div>
                 <i class="bi bi-person-circle cursor-pointer fs-5"></i>
             </div>
         </header>
 
-        <main class="main-content p-4 d-flex flex-column">
+        <main class="main-content p-3 p-md-4 d-flex flex-column">
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 text-primary fw-bold"><i class="bi bi-table me-2"></i>Registered Users</h6>
-                    <button class="btn btn-sm btn-outline-primary" onclick="fetchUsers()">
+                    <button class="btn btn-sm btn-outline-primary shadow-sm" onclick="fetchUsers()">
                         <i class="bi bi-arrow-clockwise"></i> Refresh List
                     </button>
                 </div>
@@ -89,7 +122,7 @@
                 </div>
             </div>
             
-            <footer class="text-center mt-auto text-muted small pt-4">
+            <footer class="text-center mt-auto py-3 text-muted small">
                 © 2026 MUST Conference System
             </footer>
         </main>
@@ -98,7 +131,7 @@
 
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
+        <div class="modal-content border-0 shadow-lg">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title fw-light">Edit User Account</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -106,18 +139,17 @@
             <div class="modal-body p-4">
                 <form id="editUserForm">
                     <input type="hidden" id="edit_id">
-                    
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Username</label>
-                        <input type="text" id="edit_username" class="form-control bg-light" required>
+                        <input type="text" id="edit_username" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted">Email Address</label>
-                        <input type="email" id="edit_email" class="form-control bg-light" required>
+                        <input type="email" id="edit_email" class="form-control" required>
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted">Assign Role</label>
-                        <select id="edit_role_select" class="form-select bg-light">
+                        <select id="edit_role_select" class="form-select">
                             <option value="User">User</option>
                             <option value="Admin">Admin</option>
                             <option value="Coordinator">Coordinator</option>
@@ -134,18 +166,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 1. FETCH USERS
+    // Sidebar Toggle Logic
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    toggleBtn.addEventListener('click', (e) => {
+        sidebar.classList.toggle('active');
+        e.stopPropagation();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth < 768 && sidebar.classList.contains('active')) {
+            if (!sidebar.contains(e.target) && e.target !== toggleBtn) {
+                sidebar.classList.remove('active');
+            }
+        }
+    });
+
+    // CRUD Logic
     async function fetchUsers() {
         try {
             const res = await fetch('../backend/get_users.php');
             const data = await res.json();
             const tableBody = document.getElementById('userTableBody');
             tableBody.innerHTML = ''; 
-
-            if (data.error) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger p-4">Error: ${data.error}</td></tr>`;
-                return;
-            }
 
             data.forEach((user, index) => {
                 const row = `
@@ -168,30 +212,21 @@
                 tableBody.innerHTML += row;
             });
         } catch (error) {
-            document.getElementById('userTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger p-4">Connection to backend failed.</td></tr>';
+            document.getElementById('userTableBody').innerHTML = '<tr><td colspan="5" class="text-center text-danger p-4">Error loading data.</td></tr>';
         }
     }
 
-    // 2. OPEN EDIT MODAL & PRE-FILL PRESENT VALUES
     function openEditModal(id, username, email, user_role) {
-        // Set values in the form fields
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_username').value = username;
         document.getElementById('edit_email').value = email;
-        
-        // This line pre-selects the present user_role in the dropdown
-        const roleSelect = document.getElementById('edit_role_select');
-        roleSelect.value = user_role || "User"; 
-        
-        // Show modal
+        document.getElementById('edit_role_select').value = user_role || "User"; 
         const myModal = new bootstrap.Modal(document.getElementById('editUserModal'));
         myModal.show();
     }
 
-    // 3. UPDATE SUBMISSION
     document.getElementById('editUserForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const payload = {
             id: document.getElementById('edit_id').value,
             username: document.getElementById('edit_username').value,
@@ -199,43 +234,25 @@
             user_role: document.getElementById('edit_role_select').value
         };
 
-        try {
-            const res = await fetch('../backend/update_user.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const result = await res.json();
-            
-            if (result.status === 'success') {
-                // Close modal using Bootstrap's instance method
-                const modalElement = document.getElementById('editUserModal');
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                modalInstance.hide();
-                
-                fetchUsers(); // Refresh the table to show new values
-            } else {
-                alert("Error updating user: " + result.message);
-            }
-        } catch (error) {
-            alert("Network error. Could not reach update_user.php");
+        const res = await fetch('../backend/update_user.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        if (result.status === 'success') {
+            bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+            fetchUsers();
+        } else {
+            alert(result.message);
         }
     });
 
-    // 4. DELETE USER
     async function deleteUser(id) {
-        if (confirm("Are you sure you want to permanently delete user #" + id + "?")) {
-            try {
-                const res = await fetch(`../backend/delete_user.php?id=${id}`);
-                const result = await res.json();
-                if (result.status === 'success') {
-                    fetchUsers(); 
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                alert("Request failed.");
-            }
+        if (confirm("Delete user account #" + id + "?")) {
+            const res = await fetch(`../backend/delete_user.php?id=${id}`);
+            const result = await res.json();
+            if (result.status === 'success') fetchUsers();
         }
     }
 

@@ -17,6 +17,37 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Mobile Sidebar Styling */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                z-index: 1050;
+                height: 100vh;
+                transition: 0.3s;
+                width: 250px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .main-content {
+                padding: 15px !important;
+            }
+            /* Stack the date badge on top for mobile */
+            .event-card .row.g-0 {
+                flex-direction: column;
+            }
+            .event-card .col-auto {
+                width: 100%;
+                flex-direction: row !important;
+                justify-content: start !important;
+                padding: 10px 20px !important;
+            }
+            .event-card .col-auto h4 {
+                margin-right: 10px !important;
+            }
+        }
+
         .text-truncate-3 {
             display: -webkit-box;
             -webkit-line-clamp: 3;
@@ -25,27 +56,39 @@
         }
         .event-card {
             transition: transform 0.2s;
+            border-radius: 12px;
         }
         .event-card:hover {
             transform: translateY(-2px);
         }
+        .cursor-pointer { cursor: pointer; }
     </style>
 </head>
 <body class="bg-light">
 
 <div class="container-fluid p-0 d-flex">
-    <nav class="sidebar d-flex flex-column shadow">
+    <nav class="sidebar d-flex flex-column shadow bg-dark" id="sidebar">
         <div class="sidebar-logo p-4 text-center">
-            <img src="icons/logo.jpg" alt="Logo" width="65" class="mb-2" style="border-radius: 6px;">
-            <h6 class="text-white m-0 ls-wide">MUST EVENT & CONFERENCE</h6>
+            <img src="icons/logo.jpg" alt="Logo" width="55" class="mb-2" style="border-radius: 6px;">
+            <h6 class="text-white m-0 small ls-wide">MUST EVENT & CONFERENCE</h6>
         </div>
         
-        <ul class="nav flex-column mb-auto">
-            <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-house-door"></i> <span class="d-none d-md-inline">Dashboard</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="events.html"><i class="bi bi-plus-circle"></i> <span class="d-none d-md-inline">Add Event</span></a></li>
-            <li class="nav-item"><a class="nav-link active" href="view-events.html"><i class="bi bi-calendar-event"></i> <span class="d-none d-md-inline">Events</span></a></li>
-            <li class="nav-item" id="adminLink" style="display:none;"><a class="nav-link" href="users.html"><i class="bi bi-people"></i> <span class="d-none d-md-inline">Users</span></a></li>
-            <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-gear"></i> <span class="d-none d-md-inline">Settings</span></a></li>
+        <ul class="nav flex-column mb-auto px-2">
+            <li class="nav-item">
+                <a class="nav-link  text-white" href="index.html"><i class="bi bi-house-door me-2"></i> <span>Dashboard</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white-50" href="events.html"><i class="bi bi-plus-circle me-2"></i> <span>Add Event</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active text-white-50" href="view-events.html"><i class="bi bi-calendar-event me-2"></i> <span>Events</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white-50" href="users.html"><i class="bi bi-people me-2"></i> <span>Users</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white-50" href="#"><i class="bi bi-gear me-2"></i> <span>Settings</span></a>
+            </li>
         </ul>
 
         <div class="logout-section border-top border-secondary">
@@ -55,23 +98,28 @@
         </div>
     </nav>
 
-    <div class="flex-grow-1 d-flex flex-column">
-        <header class="top-header d-flex justify-content-between align-items-center px-4 shadow-sm">
-            <h5 class="m-0 text-white fw-light">Event Management</h5>
-            <div class="header-icons text-white">
-                <i class="bi bi-bell me-3"></i>
-                <i class="bi bi-person-circle"></i>
+    <div class="flex-grow-1 d-flex flex-column" style="min-width: 0;">
+        <header class="top-header d-flex justify-content-between align-items-center px-3 px-md-4 shadow-sm bg-primary text-white" style="height: 60px;">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-primary d-md-none me-2" id="sidebarToggle">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <h5 class="m-0 fw-light">Management</h5>
+            </div>
+            <div class="header-icons">
+                <i class="bi bi-bell me-3 cursor-pointer"></i>
+                <i class="bi bi-person-circle cursor-pointer"></i>
             </div>
         </header>
 
-        <main class="main-content p-4">
+        <main class="main-content p-3 p-md-4">
             <div class="container-fluid">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                    <div class="mb-3 mb-md-0">
                         <h3 class="fw-bold mb-0">Scheduled Events</h3>
-                        <p class="text-muted">Review and manage your conference schedules</p>
+                        <p class="text-muted small">Review and manage conference schedules</p>
                     </div>
-                    <button class="btn btn-primary" onclick="loadEvents()">
+                    <button class="btn btn-primary shadow-sm" onclick="loadEvents()">
                         <i class="bi bi-arrow-clockwise me-1"></i> Refresh
                     </button>
                 </div>
@@ -97,30 +145,30 @@
                 <form id="editEventForm">
                     <div class="mb-3">
                         <label class="form-label fw-bold">Event Heading</label>
-                        <input type="text" class="form-control shadow-sm" id="editHeading" required>
+                        <input type="text" class="form-control" id="editHeading" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Description</label>
-                        <textarea class="form-control shadow-sm" id="editDescription" rows="3"></textarea>
+                        <textarea class="form-control" id="editDescription" rows="3"></textarea>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Presenter</label>
-                            <input type="text" class="form-control shadow-sm" id="editPresenter" required>
+                    <div class="row g-2">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold small">Presenter</label>
+                            <input type="text" class="form-control" id="editPresenter" required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Date</label>
-                            <input type="date" class="form-control shadow-sm" id="editDate" required>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold small">Date</label>
+                            <input type="date" class="form-control" id="editDate" required>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Location</label>
-                        <input type="text" class="form-control shadow-sm" id="editPlace" required>
+                        <input type="text" class="form-control" id="editPlace" required>
                     </div>
                 </form>
             </div>
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary px-4" onclick="updateEvent()">Save Changes</button>
             </div>
         </div>
@@ -129,6 +177,23 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Sidebar Toggle functionality
+const sidebar = document.getElementById('sidebar');
+const toggleBtn = document.getElementById('sidebarToggle');
+
+if(toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
+    });
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+        sidebar.classList.remove('active');
+    }
+});
+
 let currentEditingEventId = null;
 const editModal = new bootstrap.Modal(document.getElementById('editEventModal'));
 
@@ -144,7 +209,6 @@ async function loadEvents(){
             return;
         }
 
-        // Sort events by date
         events.sort((a, b) => new Date(a.date) - new Date(b.date));
 
         events.forEach(e => {
@@ -154,34 +218,34 @@ async function loadEvents(){
             const card = document.createElement("div");
             card.className = "col-12";
             card.innerHTML = `
-                <div class="card border-0 shadow-sm mb-2 overflow-hidden event-card">
+                <div class="card border-0 shadow-sm mb-3 overflow-hidden event-card">
                     <div class="card-body p-0">
                         <div class="row g-0">
-                            <div class="col-auto bg-primary text-white p-3 d-flex flex-column align-items-center justify-content-center" style="min-width: 100px;">
+                            <div class="col-auto bg-primary text-white p-3 d-flex flex-column align-items-center justify-content-center" style="min-width: 90px;">
                                 <h4 class="m-0 fw-bold">${eventDate.getDate()}</h4>
-                                <small class="text-uppercase">${eventDate.toLocaleString('default', { month: 'short' })}</small>
+                                <small class="text-uppercase" style="font-size: 0.7rem;">${eventDate.toLocaleString('default', { month: 'short' })}</small>
                             </div>
                             <div class="col p-3">
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="text-primary fw-bold mb-1">${e.heading}</h5>
-                                    <span class="badge ${isPast ? 'bg-secondary' : 'bg-success-subtle text-success'} align-self-start">
-                                        ${isPast ? 'Completed' : 'Upcoming'}
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="text-primary fw-bold m-0">${e.heading}</h6>
+                                    <span class="badge rounded-pill ${isPast ? 'bg-secondary' : 'bg-success-subtle text-success'}" style="font-size: 0.65rem;">
+                                        ${isPast ? 'Past' : 'Upcoming'}
                                     </span>
                                 </div>
                                 
-                                <p class="text-muted small mb-2 text-truncate-3">
-                                    ${e.description ? e.description : 'No description provided for this session.'}
+                                <p class="text-muted small mb-2 text-truncate-3" style="line-height: 1.4;">
+                                    ${e.description ? e.description : 'No description provided.'}
                                 </p>
 
-                                <div class="row text-muted small mt-2">
-                                    <div class="col-md-4"><i class="bi bi-person me-2"></i><strong>Presenter:</strong> ${e.presenter_name}</div>
-                                    <div class="col-md-4"><i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> ${e.place}</div>
-                                    <div class="col-md-4 text-md-end mt-2 mt-md-0">
-                                        <button class="btn btn-sm btn-outline-primary border-0 me-2" 
+                                <div class="row g-2 text-muted mt-2 border-top pt-2" style="font-size: 0.75rem;">
+                                    <div class="col-12 col-sm-4"><i class="bi bi-person me-1"></i>${e.presenter_name}</div>
+                                    <div class="col-12 col-sm-5"><i class="bi bi-geo-alt me-1"></i>${e.place}</div>
+                                    <div class="col-12 col-sm-3 text-sm-end">
+                                        <button class="btn btn-sm btn-outline-primary border-0 py-0" 
                                             onclick="openEditModal(${e.id}, ${JSON.stringify(e.heading).replace(/"/g, '&quot;')}, ${JSON.stringify(e.presenter_name).replace(/"/g, '&quot;')}, '${e.date}', ${JSON.stringify(e.place).replace(/"/g, '&quot;')}, ${JSON.stringify(e.description || '').replace(/"/g, '&quot;')})">
-                                            <i class="bi bi-pencil"></i>
+                                            <i class="bi bi-pencil"></i>Edit
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger border-0" onclick="deleteEvent(${e.id})"><i class="bi bi-trash"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger border-0 py-0" onclick="deleteEvent(${e.id})"><i class="bi bi-trash"></i>Delete</button>
                                     </div>
                                 </div>
                             </div>
@@ -192,10 +256,11 @@ async function loadEvents(){
             list.appendChild(card);
         });
     } catch(err) {
-        list.innerHTML = `<div class="alert alert-danger m-3">Error loading events. Please check your backend connection.</div>`;
+        list.innerHTML = `<div class="alert alert-danger mx-3">Error loading events.</div>`;
     }
 }
 
+// ... rest of your JS functions (openEditModal, deleteEvent, updateEvent) ...
 function openEditModal(id, heading, presenter, date, place, description){
     currentEditingEventId = id;
     document.getElementById("editHeading").value = heading;
@@ -207,18 +272,13 @@ function openEditModal(id, heading, presenter, date, place, description){
 }
 
 async function deleteEvent(id) {
-    if (confirm("Are you sure you want to permanently delete this event? This action cannot be undone.")) {
+    if (confirm("Permanently delete this event?")) {
         try {
             const res = await fetch(`../backend/delete_event.php?id=${id}`);
             const data = await res.json();
-            if (data.status === "success") {
-                loadEvents();
-            } else {
-                alert(data.message);
-            }
-        } catch (err) {
-            alert("Connection error. Could not delete event.");
-        }
+            if (data.status === "success") loadEvents();
+            else alert(data.message);
+        } catch (err) { alert("Delete failed."); }
     }
 }
 
@@ -239,20 +299,14 @@ async function updateEvent(){
             body: JSON.stringify(updatedData)
         });
         const data = await res.json();
-        
         if(data.status === "success") {
             editModal.hide();
             loadEvents();
-        } else {
-            alert("Update failed: " + data.message);
-        }
-    } catch (err) {
-        alert("Error connecting to server.");
-    }
+        } else alert(data.message);
+    } catch (err) { alert("Connection error."); }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Role-based Access Control
     const user = JSON.parse(localStorage.getItem("user"));
     if (user && user.user_role === 'Admin') {
         document.getElementById("adminLink").style.display = "block";

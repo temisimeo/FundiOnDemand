@@ -2,7 +2,7 @@
   "name": "Fundi On Demand",
   "short_name": "Fundi",
   "description": "MUST Event & Conference Management System",
-  "start_url": "index.html",
+  "start_url": "login.html",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
